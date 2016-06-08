@@ -20,6 +20,7 @@ import java.util.List;
 
 import cc.mallet.TopicExtraction.TopicModel;
 import cc.mallet.util.Constants;
+import gr.uom.java.pattern.gui.Console;
 
 //import org.smu.wordsimilarity.JackardSimilarityBags;
 //import org.smu.wordsimilarity.Sample;
@@ -40,7 +41,8 @@ public class CodePreprocessor {
 				
 				preprocessorDAO = new PreprocessorDAO();		
 				preprocessorDAO.saveProject(file.getPath());
-				projectPath = file.getPath();		
+				projectPath = file.getPath();
+				new Console(new File(projectPath));//this starts pattern detection and save pattern instances
 				createConsolidatedCodeFile();
 		 		preprocessProjectSourceFiles(file); 
 				TopicModel.IdentifyTopic();

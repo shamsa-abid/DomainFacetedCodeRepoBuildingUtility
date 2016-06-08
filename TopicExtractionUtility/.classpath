@@ -20,5 +20,9 @@
 	<classpathentry kind="lib" path="jawjaw-1.0.2.jar"/>
 	<classpathentry kind="lib" path="jaws-bin.jar"/>
 	<classpathentry kind="lib" path="ws4j-1.0.1.jar"/>
+	<classpathentry kind="lib" path="/DPD/lib/asm-3.0.jar"/>
+	<classpathentry kind="lib" path="/DPD/lib/asm-tree-3.0.jar"/>
+	<classpathentry kind="lib" path="/DPD/lib/asm-util-3.0.jar"/>
+	<classpathentry kind="lib" path="/DPD/lib/jmatharray.jar"/>
 	<classpathentry kind="output" path="class"/>
 </classpath>
