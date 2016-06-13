@@ -168,15 +168,25 @@ public class CodePreprocessor {
 				BufferedReader br = new BufferedReader(new FileReader(file));
 				String preprocessedFile = "";
 				String line = "";
+				
 				boolean isMultilineComment = false;
+				boolean isCopyrightComment = false;				
+				
 				while ((line = br.readLine()) != null) {					
 					line = line.trim();
 					if(line.startsWith("/*"))
 					{
 						isMultilineComment = true;
+						if(line.contains("Copyright"))
+						{
+							isCopyrightComment = true;							
+						}
+						else
+							isCopyrightComment = false;
+						
 					}
 					
-					if(line.startsWith("private")||line.startsWith("public")||line.startsWith("//")||isMultilineComment)
+					if(line.startsWith("private")||line.startsWith("public")||line.startsWith("//")||(isMultilineComment && !isCopyrightComment))
 					{
 						preprocessedFile += clean(line)+ "\n";
 						//System.out.println(line);					
@@ -184,6 +194,8 @@ public class CodePreprocessor {
 					if(line.endsWith("*/"))
 					{
 						isMultilineComment = false;
+						isCopyrightComment = false;
+						
 					}
 				}
 				br.close();
