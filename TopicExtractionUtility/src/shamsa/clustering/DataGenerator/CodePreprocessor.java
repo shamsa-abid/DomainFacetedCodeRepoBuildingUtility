@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import cc.mallet.TopicExtraction.TopicModel;
 import cc.mallet.util.Constants;
@@ -40,13 +41,13 @@ public class CodePreprocessor {
 			if (file.isDirectory()) {				
 				
 				projectPath = file.getPath();
-				Console designPatternDetector = new Console();//this starts pattern detection and save pattern instances
-				designPatternDetector.detectPatternInstances(new File(projectPath));
-				if(designPatternDetector.hasDesignPatternInstances())
-				{
+				//Console designPatternDetector = new Console();//this starts pattern detection and save pattern instances
+				//designPatternDetector.detectPatternInstances(new File(projectPath));
+				//if(designPatternDetector.hasDesignPatternInstances())
+				//{
 					preprocessorDAO = new PreprocessorDAO();		
 					preprocessorDAO.saveProject(file.getPath());
-					designPatternDetector.saveDesignPatternInstances();
+					//designPatternDetector.saveDesignPatternInstances();
 					createConsolidatedCodeFile();
 			 		preprocessProjectSourceFiles(file); 
 					TopicModel.IdentifyTopic();
@@ -54,10 +55,10 @@ public class CodePreprocessor {
 					deleteConsolidatedFile();
 					System.out.println("DONE!!!");
 					
-				}
-				else {
+				//}
+				//else {
 					System.out.println("No design pattern instances for project: " + projectPath );
-				}
+				//}
 				
 			}
 		}
@@ -166,7 +167,7 @@ public class CodePreprocessor {
 				}				
 			
 				BufferedReader br = new BufferedReader(new FileReader(file));
-				String preprocessedFile = "";
+				String preprocessedFile = "0 " + "0 ";
 				String line = "";
 				
 				boolean isMultilineComment = false;
@@ -188,7 +189,7 @@ public class CodePreprocessor {
 					
 					if(line.startsWith("private")||line.startsWith("public")||line.startsWith("//")||(isMultilineComment && !isCopyrightComment))
 					{
-						preprocessedFile += clean(line)+ "\n";
+						preprocessedFile += clean(line)+ " ";
 						//System.out.println(line);					
 					}
 					if(line.endsWith("*/"))
@@ -250,6 +251,7 @@ public class CodePreprocessor {
 	
 	public static String clean(String s){
 		String str=s;
+		str=str.replace("public", " ");		
 		str=str.replace("(", "");
 		str=str.replace(")", "");
 		str=str.replace("{", "");
@@ -286,8 +288,7 @@ public class CodePreprocessor {
 		str=str.replace("file", " ");
 		str=str.replace("while", " ");
 		str=str.replace("equals", " ");
-		str=str.replace("equal", " ");
-		str=str.replace("class", " ");
+		str=str.replace("equal", " ");		
 		str=str.replace("directory", " ");
 		str=str.replace("comment", " ");
 		str=str.replace("indexof", " ");
@@ -317,18 +318,18 @@ public class CodePreprocessor {
 		str=str.replace("zero", " ");
 		str=str.replace("abstract", " ");
 		str=str.replace("default", " ");
-		str=str.replace("if", " ");
+		str=str.replace(" if", " ");
 		str=str.replace("private", " ");
 		str=str.replace("this ", " ");
 		str=str.replace("assert", " ");
+		str=str.replace("double", " ");
 		str=str.replace("do", " ");
 		str=str.replace("implements", " ");
 		str=str.replace("protected", " ");
 		str=str.replace("throw ", " ");
-		str=str.replace("Boolean", " ");
-		str=str.replace("double", " ");
+		str=str.replace("Boolean", " ");		
 		str=str.replace("import", " ");
-		str=str.replace("public", " ");
+		
 		str=str.replace("throws ", " ");
 		str=str.replace("break", " ");
 		str=str.replace("else", " ");
@@ -354,8 +355,7 @@ public class CodePreprocessor {
 		str=str.replace("finally", " ");
 		str=str.replace("native", " ");
 		str=str.replace("super", " ");
-		str=str.replace("while", " ");
-		str=str.replace("class", " ");
+		str=str.replace("while", " ");		
 		str=str.replace("float", " ");
 		str=str.replace("new", " ");
 		str=str.replace("switch", " ");
@@ -390,10 +390,36 @@ public class CodePreprocessor {
 		str=str.replace("J", "");
 		str=str.replace("Override", "");
 		str=str.replace(".", " ");
+		str=str.replace(" to", " ");
 		str = splitCamelCase(str);
 		str=str.replaceAll("\\s{2,}"," ");
 		str=str.replace("@Override", "");
+		String className="";
+		if(str.contains("class"))
+		{
+			str = str.replace("class", " ");
+			str = str.trim();
+			className = str.substring(0,str.indexOf(" ")).toLowerCase();
+		}
+		str = deDuplicate(str);
+		if(!className.contentEquals(""))
+		{
+			str = str + " " + className + " " + className + " " + className + " " + className
+					+ " " + className+ " " + className+ " " + className+ " " + className+ " " + className;//boost class name by 10 times
+		}
+		str=str.replaceAll("\\s{2,}"," ");
 		return str;
+	}
+	public static String deDuplicate(String line) {//does not maintain word order
+		String[] arr = (line.toLowerCase()).split(" ");
+        Arrays.sort(arr);
+        String finalStr = arr[0];
+        for(int i=1; i<arr.length; i++){
+            if(arr[i].equalsIgnoreCase(arr[i-1])==false){
+                finalStr = finalStr + " " + arr[i];
+            }
+        }
+        return finalStr;
 	}
 
 	public static String splitCamelCase(String input)
