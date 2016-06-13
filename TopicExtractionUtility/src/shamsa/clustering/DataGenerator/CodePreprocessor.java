@@ -37,18 +37,28 @@ public class CodePreprocessor {
 		File[] projectsList = rootDirectory.listFiles();				
 		
 		for (File file : projectsList) {
-			if (file.isDirectory()) {
+			if (file.isDirectory()) {				
 				
-				preprocessorDAO = new PreprocessorDAO();		
-				preprocessorDAO.saveProject(file.getPath());
 				projectPath = file.getPath();
-				new Console(new File(projectPath));//this starts pattern detection and save pattern instances
-				createConsolidatedCodeFile();
-		 		preprocessProjectSourceFiles(file); 
-				TopicModel.IdentifyTopic();
-				saveIdentifiedTopics(file);
-				deleteConsolidatedFile();
-				System.out.println("DONE!!!");
+				Console designPatternDetector = new Console();//this starts pattern detection and save pattern instances
+				designPatternDetector.detectPatternInstances(new File(projectPath));
+				if(designPatternDetector.hasDesignPatternInstances())
+				{
+					preprocessorDAO = new PreprocessorDAO();		
+					preprocessorDAO.saveProject(file.getPath());
+					designPatternDetector.saveDesignPatternInstances();
+					createConsolidatedCodeFile();
+			 		preprocessProjectSourceFiles(file); 
+					TopicModel.IdentifyTopic();
+					saveIdentifiedTopics(file);
+					deleteConsolidatedFile();
+					System.out.println("DONE!!!");
+					
+				}
+				else {
+					System.out.println("No design pattern instances for project: " + projectPath );
+				}
+				
 			}
 		}
 		/*
@@ -158,12 +168,22 @@ public class CodePreprocessor {
 				BufferedReader br = new BufferedReader(new FileReader(file));
 				String preprocessedFile = "";
 				String line = "";
+				boolean isMultilineComment = false;
 				while ((line = br.readLine()) != null) {					
 					line = line.trim();
-					if(line.startsWith("private")||line.startsWith("public"))
+					if(line.startsWith("/*"))
+					{
+						isMultilineComment = true;
+					}
+					
+					if(line.startsWith("private")||line.startsWith("public")||line.startsWith("//")||isMultilineComment)
 					{
 						preprocessedFile += clean(line)+ "\n";
 						//System.out.println(line);					
+					}
+					if(line.endsWith("*/"))
+					{
+						isMultilineComment = false;
 					}
 				}
 				br.close();
