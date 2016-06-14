@@ -417,15 +417,22 @@ public class CodePreprocessor {
 		str=str.replaceAll("\\s{2,}"," ");
 		str=str.replace("@Override", "");
 		String className="";
+	
 		if(str.contains("class"))
 		{
 			str = str.replace("class", " ");
 			str = str.trim();
-			className = str.substring(0,str.indexOf(" "));
-			className = splitCamelCase(className);
+			int index = str.indexOf(" ");
+			
+			if (index >= 0){
+				className = str.substring(0,str.indexOf(" "));
+				className = splitCamelCase(className);
+			}
 		}
 		str = splitCamelCase(str);
-		str = deDuplicate(str);
+//		if (!(str == " ")){
+			str = deDuplicate(str);
+//		}
 		if(!className.contentEquals(""))
 		{
 			str = str + " " + className + " " + className + " " + className + " " + className
@@ -438,11 +445,14 @@ public class CodePreprocessor {
 	public static String deDuplicate(String line) {//does not maintain word order
 		String[] arr = (line.toLowerCase()).split(" ");
         Arrays.sort(arr);
-        String finalStr = arr[0];
-        for(int i=1; i<arr.length; i++){
-            if(arr[i].equalsIgnoreCase(arr[i-1])==false){
-                finalStr = finalStr + " " + arr[i];
-            }
+        String finalStr = "";
+        if (arr.length > 0) {
+	        finalStr = arr[0];
+	        for(int i=1; i<arr.length; i++){
+	            if(arr[i].equalsIgnoreCase(arr[i-1])==false){
+	                finalStr = finalStr + " " + arr[i];
+	            }
+	        }
         }
         return finalStr;
 	}
