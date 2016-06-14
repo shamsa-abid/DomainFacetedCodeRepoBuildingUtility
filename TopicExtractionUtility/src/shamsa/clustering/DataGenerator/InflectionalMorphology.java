@@ -106,14 +106,15 @@ public class InflectionalMorphology {
 	public String rootWord(String word)
 	{
 		InflectionalMorphology m1 = new InflectionalMorphology();
+		String baseWord = m1.getBaseWord(word);
 
-		if (m1.getBaseWord(word) == "")
+		if (baseWord.contentEquals(""))
 		{
 			return word;
 		}
 		else
 		{
-			return m1.getBaseWord(word);
+			return baseWord;
 		}
 	}
 }

@@ -41,13 +41,13 @@ public class CodePreprocessor {
 			if (file.isDirectory()) {				
 				
 				projectPath = file.getPath();
-				//Console designPatternDetector = new Console();//this starts pattern detection and save pattern instances
-				//designPatternDetector.detectPatternInstances(new File(projectPath));
-				//if(designPatternDetector.hasDesignPatternInstances())
-				//{
+				Console designPatternDetector = new Console();//this starts pattern detection and save pattern instances
+				designPatternDetector.detectPatternInstances(new File(projectPath));
+				if(designPatternDetector.hasDesignPatternInstances())
+				{
 					preprocessorDAO = new PreprocessorDAO();		
 					preprocessorDAO.saveProject(file.getPath());
-					//designPatternDetector.saveDesignPatternInstances();
+					designPatternDetector.saveDesignPatternInstances();
 					createConsolidatedCodeFile();
 			 		preprocessProjectSourceFiles(file); 
 					TopicModel.IdentifyTopic();
@@ -55,10 +55,10 @@ public class CodePreprocessor {
 					deleteConsolidatedFile();
 					System.out.println("DONE!!!");
 					
-				//}
-				//else {
+				}
+				else {
 					System.out.println("No design pattern instances for project: " + projectPath );
-				//}
+				}
 				
 			}
 		}
@@ -391,7 +391,7 @@ public class CodePreprocessor {
 		str=str.replace("Override", "");
 		str=str.replace(".", " ");
 		str=str.replace(" to", " ");
-		str = splitCamelCase(str);
+		
 		str=str.replaceAll("\\s{2,}"," ");
 		str=str.replace("@Override", "");
 		String className="";
@@ -399,14 +399,17 @@ public class CodePreprocessor {
 		{
 			str = str.replace("class", " ");
 			str = str.trim();
-			className = str.substring(0,str.indexOf(" ")).toLowerCase();
+			className = str.substring(0,str.indexOf(" "));
+			className = splitCamelCase(className);
 		}
+		str = splitCamelCase(str);
 		str = deDuplicate(str);
 		if(!className.contentEquals(""))
 		{
 			str = str + " " + className + " " + className + " " + className + " " + className
 					+ " " + className+ " " + className+ " " + className+ " " + className+ " " + className;//boost class name by 10 times
 		}
+		
 		str=str.replaceAll("\\s{2,}"," ");
 		return str;
 	}
