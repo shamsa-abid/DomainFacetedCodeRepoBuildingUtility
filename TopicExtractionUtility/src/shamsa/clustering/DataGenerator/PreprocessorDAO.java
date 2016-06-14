@@ -139,14 +139,16 @@ public class PreprocessorDAO {
 		return ID;
 	}
 
-	public void saveProject(String path) {
+	public void saveProject(String path, int categoryID, String description) {
 		
 		PreparedStatement statement;
 		try {
-			statement = connection.prepareStatement("INSERT INTO `project` (`ProjectID`, `Path`, `Name`) VALUES (NULL, ?, ?);");
+			statement = connection.prepareStatement("INSERT INTO `project` (`ProjectID`, `Path`, `Name`, `CategoryID`, `Description` ) VALUES (NULL, ?, ?, ?, ?);");
 			String name = extractProjectName(path);
 			statement.setString(1, path);
 			statement.setString(2, name);
+			statement.setInt(3, categoryID);
+			statement.setString(4, description);
 			statement.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();

@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import cc.mallet.TopicExtraction.TopicModel;
@@ -35,18 +36,39 @@ public class CodePreprocessor {
 	public static void run(File directoryName) throws Throwable{
 		
 		File rootDirectory = new File(directoryName.getPath());
-		File[] projectsList = rootDirectory.listFiles();				
+		File[] projectsList = rootDirectory.listFiles();
+		
+		// file opening and var declaration code 
+		String descriptionFilePath = directoryName.getPath() + "\\description.csv";
+		File descriptionFile = new File(descriptionFilePath);		
+		Scanner scanner = new Scanner(descriptionFile);
+		String projectDetails = "";
+		String [] splitprojectDetails = new String[2];
+		int categoryID = -1;
+		String description = "";
+		// //
+
 		
 		for (File file : projectsList) {
 			if (file.isDirectory()) {				
 				
 				projectPath = file.getPath();
+				
+				// get category ID and description of project
+				projectDetails = scanner.nextLine();
+				splitprojectDetails = projectDetails.split(",");
+				categoryID = Integer.parseInt(splitprojectDetails[0]);
+				description = splitprojectDetails[1];
+				// //
+
 				Console designPatternDetector = new Console();//this starts pattern detection and save pattern instances
 				designPatternDetector.detectPatternInstances(new File(projectPath));
 				if(designPatternDetector.hasDesignPatternInstances())
 				{
 					preprocessorDAO = new PreprocessorDAO();		
-					preprocessorDAO.saveProject(file.getPath());
+					preprocessorDAO.saveProject(file.getPath(),categoryID, description);
+
+//					preprocessorDAO.saveProject(file.getPath());
 					designPatternDetector.saveDesignPatternInstances();
 					createConsolidatedCodeFile();
 			 		preprocessProjectSourceFiles(file); 
