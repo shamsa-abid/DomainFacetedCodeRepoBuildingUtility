@@ -194,7 +194,7 @@ public class CodePreprocessor {
 				
 				boolean isMultilineComment = false;
 				boolean isCopyrightComment = false;				
-				
+				boolean isSinglelineComment = false;
 				boolean isFirst = true; 
 				while ((line = br.readLine()) != null) {					
 					line = line.trim();
@@ -221,9 +221,20 @@ public class CodePreprocessor {
 						
 					}
 					
-					if(line.startsWith("private")||line.startsWith("public")||line.startsWith("//")||(isMultilineComment)) // && !isCopyrightComment))
+					if (line.startsWith("//")) {
+						isSinglelineComment = true;
+					}
+					
+					if(line.startsWith("private")||line.startsWith("public")||line.startsWith("//")||(isMultilineComment) || isSinglelineComment) // && !isCopyrightComment))
 					{
-						preprocessedFile += clean(line)+ " ";
+						boolean canPreprocess = true;
+
+						if (isMultilineComment || isSinglelineComment) {
+							canPreprocess = hasNoJavaKeywords(line);
+						}
+						if (canPreprocess) {
+							preprocessedFile += clean(line)+ " ";
+						}
 						//System.out.println(line);					
 					}
 					if(line.endsWith("*/"))
@@ -232,6 +243,7 @@ public class CodePreprocessor {
 						isCopyrightComment = false;
 						
 					}
+					isSinglelineComment = false;
 				}
 				br.close();
 				Files.write(consolidatedFilePath,  " \n".getBytes(), StandardOpenOption.APPEND);
@@ -244,6 +256,17 @@ public class CodePreprocessor {
 			}
 		}
 	}
+	
+	private static boolean hasNoJavaKeywords(String line) {
+		
+		for (int i = 0; i < Constants.javaKeywords.length; i++){
+			if (line.toLowerCase().contains(Constants.javaKeywords[i].toLowerCase())) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 
 	public static List<String> getTopics() throws IOException{
 				
