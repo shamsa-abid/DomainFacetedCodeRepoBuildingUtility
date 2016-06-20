@@ -230,7 +230,7 @@ public class CodePreprocessor {
 						boolean canPreprocess = true;
 
 						if (isMultilineComment || isSinglelineComment) {
-							canPreprocess = hasNoJavaKeywords(line);
+							canPreprocess = hasNoJavaCode(line);
 						}
 						if (canPreprocess) {
 							preprocessedFile += clean(line)+ " ";
@@ -257,13 +257,11 @@ public class CodePreprocessor {
 		}
 	}
 	
-	private static boolean hasNoJavaKeywords(String line) {
+	private static boolean hasNoJavaCode(String line) {
 		
-		for (int i = 0; i < Constants.javaKeywords.length; i++){
-			if (line.toLowerCase().contains(Constants.javaKeywords[i].toLowerCase())) {
-				return false;
-			}
-		}
+		if (line.startsWith("private")||line.startsWith("public") || line.endsWith(";")) {
+			return false;
+		}	
 		return true;
 	}
 
